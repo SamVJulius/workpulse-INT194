@@ -3,7 +3,6 @@ import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Logger as PinoLogger } from 'nestjs-pino';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
 async function bootstrap() {
@@ -36,8 +35,7 @@ async function bootstrap() {
         }),
     );
 
-    // Global exception filter
-    app.useGlobalFilters(new HttpExceptionFilter());
+    // Note: Global exception filter and response interceptor are now registered in AppModule
 
     // Global logging interceptor
     app.useGlobalInterceptors(new LoggingInterceptor());
