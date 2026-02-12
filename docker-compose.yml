@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: workpulse-postgres
+    environment:
+      POSTGRES_USER: workpulse
+      POSTGRES_PASSWORD: workpulse_password
+      POSTGRES_DB: workpulse
+    ports:
+      - '5435:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U workpulse']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - workpulse-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: workpulse-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - workpulse-network
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: workpulse-api
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: workpulse
+      DB_PASSWORD: workpulse_password
+      DB_DATABASE: workpulse
+      DB_SSL: 'false'
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-this-in-production}
+      JWT_EXPIRATION: 7d
+      LOG_LEVEL: info
+      INACTIVE_THRESHOLD_SECONDS: 60
+      IDLE_THRESHOLD_SECONDS: 300
+      OVERTIME_THRESHOLD_HOURS: 9
+      MAX_BULK_ACTIVITIES: 1000
+    ports:
+      - '3000:3000'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - workpulse-network
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: workpulse-worker
+    environment:
+      NODE_ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: workpulse
+      DB_PASSWORD: workpulse_password
+      DB_DATABASE: workpulse
+      DB_SSL: 'false'
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-this-in-production}
+      LOG_LEVEL: info
+      INACTIVE_THRESHOLD_SECONDS: 60
+      IDLE_THRESHOLD_SECONDS: 300
+      OVERTIME_THRESHOLD_HOURS: 9
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - workpulse-network
+    restart: unless-stopped
+    command: ['node', 'dist/main']
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  workpulse-network:
+    driver: bridge
