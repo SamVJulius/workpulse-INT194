@@ -12,6 +12,7 @@ import { ActivityModule } from './modules/activity/activity.module';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { HealthModule } from './modules/health/health.module';
+import { UsersModule } from './modules/users/users.module';
 import { WebsocketModule } from './websocket/websocket.module';
 import { JobsModule } from './jobs/jobs.module';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
@@ -58,6 +59,7 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
         ProjectsModule,
         ReportsModule,
         HealthModule,
+        UsersModule,
         WebsocketModule,
         JobsModule,
     ],
