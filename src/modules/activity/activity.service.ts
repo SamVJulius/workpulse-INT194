@@ -59,7 +59,9 @@ export class ActivityService {
             throw new BadRequestException('Activity timestamp cannot be after session end time');
         }
 
-        if (timestamp > new Date()) {
+        // Allow 5 minutes of clock skew
+        const futureThreshold = new Date(Date.now() + 5 * 60 * 1000);
+        if (timestamp > futureThreshold) {
             throw new BadRequestException('Activity timestamp cannot be in the future');
         }
 
@@ -138,7 +140,9 @@ export class ActivityService {
                 );
             }
 
-            if (timestamp > new Date()) {
+            // Allow 5 minutes of clock skew
+            const futureThreshold = new Date(Date.now() + 5 * 60 * 1000);
+            if (timestamp > futureThreshold) {
                 throw new BadRequestException(`Activity timestamp ${activity.timestamp} cannot be in the future`);
             }
         }

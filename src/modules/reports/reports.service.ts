@@ -1,6 +1,6 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Between } from 'typeorm';
 import { DailySummary } from '@database/entities/daily-summary.entity';
 import { WorkSession } from '@database/entities/work-session.entity';
 import { User, UserRole } from '@database/entities/user.entity';
@@ -34,10 +34,10 @@ export class ReportsService {
         const whereClause: any = { user_id: userId };
 
         if (startDate && endDate) {
-            whereClause.date = {
-                $gte: new Date(startDate),
-                $lte: new Date(endDate),
-            };
+            whereClause.date = Between(
+                new Date(startDate),
+                new Date(endDate),
+            );
         }
 
         const summaries = await this.dailySummaryRepository.find({

@@ -7,12 +7,14 @@ import { IdleDetectionProcessor } from './processors/idle-detection.processor';
 import { OvertimeCheckerProcessor } from './processors/overtime-checker.processor';
 import { DailySummary } from '@database/entities/daily-summary.entity';
 import { WorkSession } from '@database/entities/work-session.entity';
+import { ActivityLog } from '@database/entities/activity-log.entity';
 import { Alert } from '@database/entities/alert.entity';
 import { WebsocketModule } from '../websocket/websocket.module';
+import { JobsController } from './jobs.controller';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([DailySummary, WorkSession, Alert]),
+        TypeOrmModule.forFeature([DailySummary, WorkSession, ActivityLog, Alert]),
         BullModule.forRootAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
@@ -45,6 +47,7 @@ import { WebsocketModule } from '../websocket/websocket.module';
         ),
         WebsocketModule,
     ],
+    controllers: [JobsController],
     providers: [DailySummaryProcessor, IdleDetectionProcessor, OvertimeCheckerProcessor],
     exports: [BullModule],
 })
