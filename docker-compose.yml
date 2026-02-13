@@ -68,6 +68,7 @@ services:
     networks:
       - workpulse-network
     restart: unless-stopped
+    command: sh -c "npm run migration:run:prod && node dist/main"
 
   worker:
     build:
@@ -94,10 +95,12 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      api:
+        condition: service_healthy
     networks:
       - workpulse-network
     restart: unless-stopped
-    command: ['node', 'dist/main']
+    command: ["node", "dist/main"]
 
 volumes:
   postgres_data:
