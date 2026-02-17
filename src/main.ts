@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Logger as PinoLogger } from 'nestjs-pino';
@@ -52,6 +53,16 @@ async function bootstrap() {
             process.exit(0);
         });
     });
+
+    // Swagger Configuration
+    const config = new DocumentBuilder()
+        .setTitle('WorkPulse API')
+        .setDescription('Production-grade Workforce Productivity & Time Intelligence System API')
+        .setVersion('1.0')
+        .addBearerAuth()
+        .build();
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api/docs', app, document);
 
     const port = configService.get<number>('app.port', 3000);
     await app.listen(port);
